@@ -1,13 +1,68 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
-generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+enum StatusPedido{
+  PENDENTE
+  FIZALIZADO
+  CANCELADO
 }
 
-datasource db {
-  provider = "postgresql"
+
+model Cliente{
+
+  id          Int             @id@default(autoincrement())
+  nome        String
+  email       String          @unique 
+  carteira    Float           @default(0.0)
+  ativo       Boolean         @default(true)
+  criadoEm    DateTime        @default(now())    
+
+  perfil      Perfil?
+  pediddos    Pedido[]
+}
+
+model Perfil{
+  
+  id          Int             @id@default(autoincrement())
+  cpf         String          @unique
+  telefone    String?
+  endereço    String
+
+  clienteID   Int             @unique
+  cliente     Cliente         @relation(fields: [clienteID], references: [id])
+}
+
+model categoria{
+
+  id          Int             @id@default(autoincrement())
+  nome        String          @unique         
+  produtos    Produto[]
+}
+
+model Produto{
+
+  id          Int             @id@default(autoincrement())
+  nome        String          @unique         
+  preco       Float           
+  estoque     Int             @default(0)
+}
+
+model Pedido{
+
+  id          Int             @id@defalut(autoincrement())
+  valorTotal  Float           @default(0.0)
+  status      StatusPedido    @default(PENDENTE)
+  dataCompra  DateTime        @default(now())
+  
+  clienteID   Int             @unique
+  itens       ItemPedido[]
+}
+
+model ItemPedido{
+
+  id          Int @id@default(autoincrement())
+  quantidade  Int 
+  precoUnitario Float 
+
+  pedidoID    Int       @unique
+  pedido      Pedido    @relation(fileds:[pedidoID],references:[id])
+  produtoID   Int       @unique
+  produto     Produto   @relation(fileds:[produtoID],references:[id])
 }
