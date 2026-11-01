@@ -1,34 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { LojaService } from './loja.service.js';
-import { CreateLojaDto } from './dto/create-loja.dto.js';
-import { UpdateLojaDto } from './dto/update-loja.dto.js';
+// 3. Camada de Rotas HTTP (loja.controller.ts)
+import { Controller, Get, Post, Body } from '@nestjs/common';
+import { LojaService } from './loja.service';
+import { CriarClienteDto, RealizarPedidoDto } from './loja.dto';
 
 @Controller('loja')
 export class LojaController {
   constructor(private readonly lojaService: LojaService) {}
 
-  @Post()
-  create(@Body() createLojaDto: CreateLojaDto) {
-    return this.lojaService.create(createLojaDto);
+  @Get('produtos')
+  async verCatalogo() {
+    return await this.lojaService.listarProdutosEmEstoque();
   }
 
-  @Get()
-  findAll() {
-    return this.lojaService.findAll();
+  @Post('clientes')
+  async registrarCliente(@Body() corpoDaRequisicao: CriarClienteDto) {
+    return await this.lojaService.cadastrarCliente(corpoDaRequisicao);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.lojaService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLojaDto: UpdateLojaDto) {
-    return this.lojaService.update(+id, updateLojaDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.lojaService.remove(+id);
+  @Post('pedidos')
+  async comprar(@Body() dadosDaCompra: RealizarPedidoDto) {
+    return await this.lojaService.fecharPedido(dadosDaCompra);
   }
 }
